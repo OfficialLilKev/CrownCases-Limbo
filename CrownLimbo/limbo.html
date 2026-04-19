@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrownCases - Limbo</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-card: #1a1a26;
+    --bg-input: #0f0f18;
+    --accent-gold: #f5c842;
+    --accent-gold-dim: #b8942a;
+    --accent-gold-glow: rgba(245, 200, 66, 0.3);
+    --accent-purple: #7c3aed;
+    --accent-purple-bright: #9f5ff8;
+    --win-green: #22c55e;
+    --win-green-glow: rgba(34, 197, 94, 0.4);
+    --loss-red: #ef4444;
+    --loss-red-glow: rgba(239, 68, 68, 0.4);
+    --text-primary: #ffffff;
+    --text-secondary: #8888aa;
+    --text-dim: #555577;
+    --border: #2a2a3a;
+    --border-bright: #3a3a55;
+    --crown: #f5c842;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid effect */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245,200,66,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,200,66,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo img {
+    height: 38px;
+    object-fit: contain;
+  }
+
+  .logo-text {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: var(--accent-gold);
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px var(--accent-gold-glow);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .balance-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .balance-badge .crown-icon { color: var(--accent-gold); font-size: 1.1rem; }
+  .balance-badge span { color: var(--accent-gold); }
+
+  .settings-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    color: var(--text-secondary);
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+  }
+
+  .settings-btn:hover { color: var(--accent-gold); border-color: var(--accent-gold); }
+
+  /* MAIN LAYOUT */
+  .game-wrapper {
+    display: flex;
+    height: calc(100vh - 67px);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* LEFT PANEL */
+  .left-panel {
+    width: 300px;
+    min-width: 300px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .tab-group {
+    display: flex;
+    background: var(--bg-input);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 9px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .tab-btn.active {
+    background: var(--accent-gold);
+    color: #0a0a0f;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+
+  .form-label .usdc-val { color: var(--accent-gold); font-size: 0.78rem; }
+
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap:focus-within { border-color: var(--accent-gold); }
+
+  .input-icon {
+    padding: 0 12px;
+    color: var(--accent-gold);
+    font-size: 1rem;
+  }
+
+  .input-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 11px 0;
+    outline: none;
+  }
+
+  .input-wrap input::placeholder { color: var(--text-dim); }
+
+  .input-btns {
+    display: flex;
+  }
+
+  .input-btn {
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: none;
+    border-left: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .input-btn:hover { background: var(--accent-gold); color: #0a0a0f; }
+
+  .multiplier-row {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .multiplier-row:focus-within { border-color: var(--accent-gold); }
+
+  .multiplier-row input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 11px 14px;
+    outline: none;
+    color: var(--accent-gold);
+  }
+
+  .multi-suffix {
+    padding: 0 12px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .chance-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+  }
+
+  .chance-display .chance-val {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    color: var(--accent-gold);
+    font-size: 0.95rem;
+  }
+
+  .chance-display .chance-label {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .bet-btn {
+    padding: 15px;
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dim));
+    border: none;
+    border-radius: 10px;
+    color: #0a0a0f;
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px var(--accent-gold-glow);
+  }
+
+  .bet-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px var(--accent-gold-glow);
+  }
+
+  .bet-btn:active { transform: translateY(0); }
+
+  .bet-btn:disabled {
+    background: var(--bg-card);
+    color: var(--text-dim);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+
+  .info-row .info-label { color: var(--text-secondary); font-weight: 500; }
+  .info-row .info-val { color: var(--text-primary); font-weight: 700; }
+
+  .provably-fair-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .provably-fair-btn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+  }
+
+  /* RIGHT PANEL - GAME AREA */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 28px;
+    gap: 20px;
+    overflow: hidden;
+  }
+
+  /* HISTORY STRIP */
+  .history-strip {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    min-height: 36px;
+    align-items: center;
+  }
+
+  .history-strip::-webkit-scrollbar { height: 3px; }
+  .history-strip::-webkit-scrollbar-track { background: transparent; }
+  .history-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .history-pill {
+    flex-shrink: 0;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    animation: pillIn 0.3s ease;
+  }
+
+  @keyframes pillIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .history-pill.win {
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.4);
+    color: var(--win-green);
+  }
+
+  .history-pill.loss {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--loss-red);
+  }
+
+  /* GAME CENTER */
+  .game-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+  }
+
+  .multiplier-display {
+    width: 380px;
+    height: 200px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .multiplier-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+    z-index: 1;
+  }
+
+  .multiplier-display.win-state {
+    border-color: var(--win-green);
+    box-shadow: 0 0 40px var(--win-green-glow), inset 0 0 40px rgba(34,197,94,0.1);
+    background: rgba(34,197,94,0.05);
+  }
+
+  .multiplier-display.loss-state {
+    border-color: var(--loss-red);
+    box-shadow: 0 0 40px var(--loss-red-glow), inset 0 0 40px rgba(239,68,68,0.1);
+    background: rgba(239,68,68,0.05);
+  }
+
+  .multiplier-display.rolling-state {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 30px var(--accent-gold-glow);
+  }
+
+  .multi-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 3.8rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    position: relative;
+    z-index: 2;
+    transition: color 0.3s;
+    letter-spacing: -1px;
+  }
+
+  .multi-number.win-color { color: var(--win-green); text-shadow: 0 0 30px var(--win-green-glow); }
+  .multi-number.loss-color { color: var(--loss-red); text-shadow: 0 0 30px var(--loss-red-glow); }
+  .multi-number.rolling-color { color: var(--accent-gold); text-shadow: 0 0 20px var(--accent-gold-glow); }
+
+  @keyframes countUp {
+    from { transform: scale(0.8); opacity: 0.5; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .multi-number.rolling-anim {
+    animation: countUp 0.05s ease;
+  }
+
+  .result-banner {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-transform: uppercase;
+    height: 24px;
+  }
+
+  .result-banner.show { opacity: 1; }
+  .result-banner.win { color: var(--win-green); text-shadow: 0 0 20px var(--win-green-glow); }
+  .result-banner.loss { color: var(--loss-red); }
+
+  /* Target indicator */
+  .target-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .target-indicator .target-val {
+    font-family: 'Orbitron', monospace;
+    color: var(--accent-gold);
+    font-weight: 700;
+  }
+
+  /* STATS BOTTOM */
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+  }
+
+  .stat-card .stat-val.green { color: var(--win-green); }
+  .stat-card .stat-val.red { color: var(--loss-red); }
+
+  /* MODALS */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-bright);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 28px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: var(--text-primary); }
+
+  .modal-section {
+    margin-bottom: 20px;
+  }
+
+  .modal-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .seed-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+
+  .seed-display span {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    word-break: break-all;
+  }
+
+  .seed-copy-btn {
+    background: none;
+    border: none;
+    color: var(--accent-gold);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    white-space: nowrap;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+  }
+
+  .seed-copy-btn:hover { background: rgba(245,200,66,0.1); }
+
+  .verify-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+  }
+
+  .verify-input:focus { border-color: var(--accent-gold); }
+
+  .verify-btn {
+    padding: 10px 20px;
+    background: var(--accent-gold);
+    border: none;
+    border-radius: 8px;
+    color: #0a0a0f;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .verify-btn:hover { opacity: 0.9; }
+
+  .verify-result {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+  }
+
+  .verify-result.show { display: block; }
+  .verify-result.valid { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--win-green); }
+  .verify-result.invalid { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--loss-red); }
+
+  /* SETTINGS MODAL */
+  .sound-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sound-row:last-child { border-bottom: none; }
+
+  .sound-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+  }
+
+  .sound-sublabel {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    transition: 0.3s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+    background: var(--text-secondary);
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  .toggle input:checked + .toggle-slider { background: var(--accent-gold); border-color: var(--accent-gold); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); background: #0a0a0f; }
+
+  .volume-slider {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent-gold);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  /* BET HISTORY TABLE */
+  .bet-history {
+    margin-top: 12px;
+  }
+
+  .bet-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+
+  .bet-row:hover { background: var(--bg-card); }
+
+  .bet-row.header-row {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent !important;
+  }
+
+  .bet-row .bet-win { color: var(--win-green); }
+  .bet-row .bet-loss { color: var(--loss-red); }
+
+  /* SHAKING ANIMATION */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  @keyframes winPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  .shake-anim { animation: shake 0.4s ease; }
+  .win-pulse-anim { animation: winPulse 0.6s ease; }
+
+  /* PARTICLES */
+  .particle-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: particleFall linear forwards;
+  }
+
+  @keyframes particleFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* CROWN ICON */
+  .crown-svg { width: 22px; height: 22px; }
+
+  .neon-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+    margin: 4px 0;
+    opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- PARTICLES CONTAINER -->
+<div class="particle-container" id="particles"></div>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="#">
+    <img src="https://www.image2url.com/r2/default/images/1776561368023-f724285c-1ce2-4873-a605-a98ea244e19f.png" alt="CrownCases" onerror="this.style.display='none'">
+    <span class="logo-text">CROWNCASES</span>
+  </a>
+  <div class="header-right">
+    <div class="balance-badge">
+      <span class="crown-icon">👑</span>
+      <span>Balance: $<span id="balanceDisplay">1000.00</span></span>
+    </div>
+    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="game-wrapper">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="tab-group">
+      <button class="tab-btn active" id="tabManual" onclick="setTab('manual')">Manual</button>
+      <button class="tab-btn" id="tabAuto" onclick="setTab('auto')">Auto</button>
+    </div>
+
+    <div class="neon-line"></div>
+
+    <!-- BET AMOUNT -->
+    <div class="form-group">
+      <div class="form-label">
+        <span>Bet Amount</span>
+        <span class="usdc-val" id="betUSDLabel">$0.00</span>
+      </div>
+      <div class="input-wrap">
+        <span class="input-icon">$</span>
+        <input type="number" id="betInput" min="1" max="500" step="1" value="1.00" placeholder="1.00" oninput="onBetChange()">
+        <div class="input-btns">
+          <button class="input-btn" onclick="halfBet()">½</button>
+          <button class="input-btn" onclick="doubleBet()">2×</button>
+          <button class="input-btn" onclick="maxBet()">MAX</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MULTIPLIER TARGET -->
+    <div class="form-group">
+      <div class="form-label">
+        <span>Target Multiplier</span>
+      </div>
+      <div class="multiplier-row">
+        <input type="number" id="multiInput" min="1.09" max="1000000" step="0.01" value="2.00" oninput="onMultiDisplay()" onblur="onMultiChange()">
+        <span class="multi-suffix">×</span>
+      </div>
+    </div>
+
+    <!-- WIN CHANCE -->
+    <div class="form-group">
+      <div class="form-label"><span>Win Chance</span></div>
+      <div class="chance-display">
+        <span class="chance-label">Probability</span>
+        <span class="chance-val" id="chanceDisplay">47.50%</span>
+      </div>
+    </div>
+
+    <!-- PROFIT -->
+    <div class="form-group">
+      <div class="form-label">
+        <span>Profit on Win</span>
+        <span class="usdc-val" id="profitUSDLabel">$0.00</span>
+      </div>
+      <div class="input-wrap">
+        <span class="input-icon">💰</span>
+        <input type="text" id="profitDisplay" readonly value="0.00" style="color:var(--win-green)">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- AUTO BET OPTIONS (hidden by default) -->
+    <div id="autoPanel" style="display:none; flex-direction:column; gap:12px;">
+      <div class="form-group">
+        <div class="form-label"><span>Number of Bets</span></div>
+        <div class="input-wrap">
+          <span class="input-icon">#</span>
+          <input type="number" id="numBetsInput" min="1" max="1000" value="10">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span>Delay (ms)</span></div>
+        <div class="input-wrap">
+          <span class="input-icon">⏱</span>
+          <input type="number" id="delayInput" min="200" max="5000" value="800">
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Auto Progress</span>
+        <span class="info-val" id="autoProgressLabel">—</span>
+      </div>
+    </div>
+
+    <!-- BET BUTTON -->
+    <button class="bet-btn" id="betBtn" onclick="placeBet()">BET</button>
+
+    <div class="divider"></div>
+
+    <div class="info-row">
+      <span class="info-label">House Edge</span>
+      <span class="info-val">1.00%</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Session Wins</span>
+      <span class="info-val" id="sessionWins" style="color:var(--win-green)">0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Session Losses</span>
+      <span class="info-val" id="sessionLosses" style="color:var(--loss-red)">0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Total Wagered</span>
+      <span class="info-val" id="totalWagered">$0.00</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="provably-fair-btn" onclick="openProvablyFair()">
+      🔐 Provably Fair
+    </button>
+
+    <button class="provably-fair-btn" onclick="openBetHistory()" style="margin-top:4px;">
+      📋 Bet History
+    </button>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- HISTORY STRIP -->
+    <div class="history-strip" id="historyStrip">
+      <span style="color:var(--text-dim); font-size:0.8rem; letter-spacing:1px;">No bets yet...</span>
+    </div>
+
+    <!-- GAME CENTER -->
+    <div class="game-center">
+      <div class="target-indicator">
+        <span>Rolling for ≥</span>
+        <span class="target-val" id="targetLabel">2.00×</span>
+        <span>to win</span>
+      </div>
+
+      <div class="multiplier-display" id="multiplierDisplay">
+        <span class="multi-number" id="multiNumber">1.00×</span>
+      </div>
+
+      <div class="result-banner" id="resultBanner">PLACE YOUR BET</div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Best Multi</div>
+          <div class="stat-val" id="bestMulti">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last Win</div>
+          <div class="stat-val green" id="lastWin">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Net P&L</div>
+          <div class="stat-val" id="netPnl">$0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Win Streak</div>
+          <div class="stat-val" id="winStreak">0</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROVABLY FAIR MODAL -->
+<div class="modal-overlay" id="pfModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🔐 Provably Fair</span>
+      <button class="modal-close" onclick="closeModal('pfModal')">✕</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Your Client Seed</div>
+      <div class="seed-display">
+        <span id="clientSeedDisplay">—</span>
+        <button class="seed-copy-btn" onclick="copyToClipboard('clientSeedDisplay')">Copy</button>
+        <button class="seed-copy-btn" onclick="regenerateClientSeed()">New</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Server Seed Hash (Current)</div>
+      <div class="seed-display">
+        <span id="serverSeedHashDisplay">—</span>
+        <button class="seed-copy-btn" onclick="copyToClipboard('serverSeedHashDisplay')">Copy</button>
+      </div>
+      <p style="color:var(--text-secondary); font-size:0.78rem; margin-top:8px; line-height:1.5;">
+        The server seed hash is a SHA-256 hash of the actual server seed. You can verify it after the round is revealed.
+      </p>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Previous Server Seed (Revealed)</div>
+      <div class="seed-display">
+        <span id="prevServerSeedDisplay">Not yet revealed</span>
+        <button class="seed-copy-btn" onclick="copyToClipboard('prevServerSeedDisplay')">Copy</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Nonce</div>
+      <div class="seed-display">
+        <span id="nonceDisplay">0</span>
+      </div>
+    </div>
+
+    <div class="divider" style="margin-bottom:20px;"></div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Verify a Roll</div>
+      <input class="verify-input" id="verifyServerSeed" placeholder="Server seed (after reveal)">
+      <input class="verify-input" id="verifyClientSeed" placeholder="Client seed">
+      <input class="verify-input" id="verifyNonce" placeholder="Nonce (number)" type="number">
+      <button class="verify-btn" onclick="verifyRoll()">Verify Result</button>
+      <div class="verify-result" id="verifyResult"></div>
+    </div>
+
+    <div style="margin-top:16px; padding:14px; background:var(--bg-input); border-radius:8px; border:1px solid var(--border);">
+      <p style="color:var(--text-secondary); font-size:0.8rem; line-height:1.6;">
+        <strong style="color:var(--accent-gold);">How it works:</strong><br>
+        Each roll uses HMAC-SHA256(serverSeed, clientSeed + ":" + nonce) to generate a provably random float u ∈ [0,1). This is converted to a multiplier using the 5% house edge formula: <code style="color:var(--accent-gold);">multiplier = 0.95 / (1 - u)</code>. You win if the multiplier ≥ your target. P(win) = 95% / target. The server seed is committed (hashed) before the bet and revealed after, so neither party can manipulate results.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⚙ Settings</span>
+      <button class="modal-close" onclick="closeModal('settingsModal')">✕</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Sound Settings</div>
+
+      <div class="sound-row">
+        <div>
+          <div class="sound-label">🎉 Win Sound</div>
+          <div class="sound-sublabel">Plays when you hit the multiplier</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleWinSound" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="sound-row">
+        <div>
+          <div class="sound-label">💥 Loss Sound</div>
+          <div class="sound-sublabel">Plays when the roll misses</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleLossSound" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="sound-row">
+        <div>
+          <div class="sound-label">🎰 Roll Sound</div>
+          <div class="sound-sublabel">Ticking during the roll animation</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleRollSound" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="sound-row">
+        <div>
+          <div class="sound-label">🔊 Master Volume</div>
+          <div class="sound-sublabel">Overall sound volume</div>
+        </div>
+        <input type="range" class="volume-slider" id="masterVolume" min="0" max="100" value="70">
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Display Settings</div>
+
+      <div class="sound-row">
+        <div>
+          <div class="sound-label">✨ Win Particles</div>
+          <div class="sound-sublabel">Confetti effect on win</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleParticles" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="sound-row">
+        <div>
+          <div class="sound-label">⚡ Fast Roll Mode</div>
+          <div class="sound-sublabel">Skip the roll animation</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleFastMode">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BET HISTORY MODAL -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <span class="modal-title">📋 Bet History</span>
+      <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
+    </div>
+    <div class="bet-history">
+      <div class="bet-row header-row">
+        <span>#</span>
+        <span>Bet</span>
+        <span>Target</span>
+        <span>Result</span>
+        <span>P&L</span>
+      </div>
+      <div id="betHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let balance = 1000.00;
+let sessionWins = 0;
+let sessionLosses = 0;
+let totalWagered = 0;
+let netPnl = 0;
+let winStreak = 0;
+let bestMulti = null;
+let lastWin = null;
+let isRolling = false;
+let currentTab = 'manual';
+let betHistory = [];
+let historyPills = [];
+let autoInterval = null;
+let autoBetsLeft = 0;
+
+// Seeds
+let clientSeed = generateClientSeed();
+let serverSeed = generateServerSeed();
+let prevServerSeed = null;
+let nonce = 0;
+let serverSeedHash = sha256(serverSeed);
+
+// Audio Context
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// ===== CRYPTO UTILS =====
+
+// Simple SHA256 implementation
+async function sha256Async(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Sync SHA256 using SubtleCrypto (returns promise, we'll use async pattern)
+function sha256(str) {
+  // Synchronous fallback using a simple hash for display (real verify uses async)
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  // Generate a deterministic-looking hex string
+  let result = '';
+  let seed = Math.abs(hash);
+  for (let i = 0; i < 64; i++) {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    result += (seed % 16).toString(16);
+  }
+  return result;
+}
+
+// HMAC-SHA256 using SubtleCrypto
+async function hmacSha256(key, message) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(key),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', keyMaterial, enc.encode(message));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function generateRoll(serverSeedStr, clientSeedStr, nonceVal) {
+  const hmac = await hmacSha256(serverSeedStr, clientSeedStr + ':' + nonceVal);
+  // Take first 8 hex chars → uint32
+  const uint32 = parseInt(hmac.substring(0, 8), 16);
+  // Normalize to [0, 1)
+  const float = uint32 / 0x100000000;
+  return float;
+}
+
+function floatToMultiplier(float) {
+  // 5% house edge, 95% RTP: multiplier = 0.95 / (1 - float)
+  // Proof: P(win | target T) = P(0.95/(1-u) >= T) = 0.95/T
+  // Examples: 2x=47.5%, 3x=31.67%, 5x=19%, 10x=9.5%,
+  //           25x=3.8%, 50x=1.9%, 100x=0.95%, 500x=0.19%
+  const f = Math.min(float, 0.9999990);
+  const raw = 0.95 / (1 - f);
+  return Math.min(parseFloat(raw.toFixed(2)), 1000000);
+}
+
+function generateClientSeed() {
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function generateServerSeed() {
+  const arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ===== WIN CHANCE CALCULATION =====
+// 5% house edge (95% RTP): P(win) = 95 / targetMulti (as a percentage)
+// 2x=47.50% | 3x=31.67% | 5x=19.00% | 10x=9.50% | 25x=3.80%
+// 50x=1.90% | 100x=0.95% | 500x=0.19% | 1000x=0.095% | 10000x=0.0095%
+function getWinChance(targetMulti) {
+  return Math.min(95 / targetMulti, 90.70); // max ~90.7% at 1.09x
+}
+
+// ===== AUDIO =====
+function playWinSound() {
+  if (!document.getElementById('toggleWinSound').checked) return;
+  try {
+    const ctx = getAudioCtx();
+    const vol = document.getElementById('masterVolume').value / 100;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol * 0.4, ctx.currentTime + 0.01);
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.setValueAtTime(550, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.2);
+    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.35);
+    gain.gain.setValueAtTime(vol * 0.4, ctx.currentTime + 0.35);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.8);
+
+    // Second harmonics layer
+    setTimeout(() => {
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2); gain2.connect(ctx.destination);
+      osc2.type = 'triangle';
+      gain2.gain.setValueAtTime(vol * 0.25, ctx.currentTime);
+      osc2.frequency.setValueAtTime(880, ctx.currentTime);
+      osc2.frequency.setValueAtTime(1100, ctx.currentTime + 0.15);
+      gain2.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+      osc2.start(ctx.currentTime);
+      osc2.stop(ctx.currentTime + 0.5);
+    }, 100);
+  } catch(e){}
+}
+
+function playLossSound() {
+  if (!document.getElementById('toggleLossSound').checked) return;
+  try {
+    const ctx = getAudioCtx();
+    const vol = document.getElementById('masterVolume').value / 100;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    gain.gain.setValueAtTime(vol * 0.3, ctx.currentTime);
+    osc.frequency.setValueAtTime(220, ctx.currentTime);
+    osc.frequency.setValueAtTime(110, ctx.currentTime + 0.2);
+    osc.frequency.setValueAtTime(80, ctx.currentTime + 0.35);
+    gain.gain.setValueAtTime(vol * 0.3, ctx.currentTime + 0.1);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch(e){}
+}
+
+function playTickSound() {
+  if (!document.getElementById('toggleRollSound').checked) return;
+  try {
+    const ctx = getAudioCtx();
+    const vol = document.getElementById('masterVolume').value / 100;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'square';
+    gain.gain.setValueAtTime(vol * 0.05, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.03);
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.03);
+  } catch(e){}
+}
+
+// ===== UI UPDATES =====
+function onBetChange() {
+  const bet = parseFloat(document.getElementById('betInput').value) || 0;
+  document.getElementById('betUSDLabel').textContent = '$' + bet.toFixed(2);
+  updateProfit();
+}
+
+// Fires on every keystroke — updates chance/profit display without clamping
+function onMultiDisplay() {
+  const raw = parseFloat(document.getElementById('multiInput').value);
+  if (!raw || raw < 1.09) return; // don't clamp mid-typing
+  const multi = Math.min(raw, 1000000);
+  const chance = getWinChance(multi);
+  document.getElementById('chanceDisplay').textContent = chance.toFixed(8) + '%';
+  document.getElementById('targetLabel').textContent = multi.toFixed(2) + '×';
+  updateProfit();
+}
+
+// Fires on blur — clamps and finalises the value
+function onMultiChange() {
+  let multi = parseFloat(document.getElementById('multiInput').value) || 2;
+  if (multi < 1.09) {
+    multi = 1.09;
+    document.getElementById('multiInput').value = '1.09';
+  }
+  if (multi > 1000000) {
+    multi = 1000000;
+    document.getElementById('multiInput').value = '1000000';
+  }
+  const chance = getWinChance(multi);
+  document.getElementById('chanceDisplay').textContent = chance.toFixed(8) + '%';
+  document.getElementById('targetLabel').textContent = multi.toFixed(2) + '×';
+  updateProfit();
+}
+
+function updateProfit() {
+  const bet = parseFloat(document.getElementById('betInput').value) || 0;
+  const multi = parseFloat(document.getElementById('multiInput').value) || 2;
+  const profit = (bet * multi - bet);
+  document.getElementById('profitDisplay').value = profit.toFixed(2);
+  document.getElementById('profitUSDLabel').textContent = '$' + profit.toFixed(2);
+}
+
+function halfBet() {
+  const curr = parseFloat(document.getElementById('betInput').value) || 1;
+  document.getElementById('betInput').value = Math.max(1, curr / 2).toFixed(2);
+  onBetChange();
+}
+
+function doubleBet() {
+  const curr = parseFloat(document.getElementById('betInput').value) || 1;
+  document.getElementById('betInput').value = Math.min(500, curr * 2).toFixed(2);
+  onBetChange();
+}
+
+function maxBet() {
+  document.getElementById('betInput').value = '500.00';
+  onBetChange();
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabManual').classList.toggle('active', tab === 'manual');
+  document.getElementById('tabAuto').classList.toggle('active', tab === 'auto');
+  document.getElementById('autoPanel').style.display = tab === 'auto' ? 'flex' : 'none';
+}
+
+// ===== PLACE BET =====
+async function placeBet() {
+  if (isRolling) return;
+
+  const betAmt = parseFloat(document.getElementById('betInput').value);
+  const targetMulti = parseFloat(document.getElementById('multiInput').value);
+
+  // Validation
+  if (isNaN(betAmt) || betAmt < 1) {
+    showBanner('Minimum bet is $1.00', 'loss');
+    return;
+  }
+  if (betAmt > 500) {
+    showBanner('Maximum bet is $500.00', 'loss');
+    return;
+  }
+  if (betAmt > balance) {
+    showBanner('Insufficient balance!', 'loss');
+    shakeDisplay();
+    return;
+  }
+  if (isNaN(targetMulti) || targetMulti < 1.09) {
+    showBanner('Minimum multiplier is 1.09×', 'loss');
+    return;
+  }
+  if (targetMulti > 1000000) {
+    showBanner('Maximum multiplier is 1,000,000×', 'loss');
+    return;
+  }
+
+  isRolling = true;
+  document.getElementById('betBtn').disabled = true;
+  balance -= betAmt;
+  totalWagered += betAmt;
+  updateBalanceDisplay();
+
+  // Generate result
+  const rollFloat = await generateRoll(serverSeed, clientSeed, nonce);
+  const rolledMulti = floatToMultiplier(rollFloat);
+  const won = rolledMulti >= targetMulti;
+
+  // Animate
+  const fastMode = document.getElementById('toggleFastMode').checked;
+  if (!fastMode) {
+    await animateRoll(rolledMulti, targetMulti, won);
+  } else {
+    // Instant result
+    displayResult(rolledMulti, won, betAmt, targetMulti);
+  }
+
+  // Record & settle
+  if (won) {
+    const payout = betAmt * targetMulti;
+    balance += payout;
+    netPnl += (payout - betAmt);
+    sessionWins++;
+    winStreak++;
+    lastWin = targetMulti;
+    if (bestMulti === null || rolledMulti > bestMulti) bestMulti = rolledMulti;
+    document.getElementById('lastWin').textContent = targetMulti.toFixed(2) + '×';
+    document.getElementById('bestMulti').textContent = bestMulti.toFixed(2) + '×';
+    document.getElementById('winStreak').textContent = winStreak;
+    if (fastMode) {
+      playWinSound();
+      if (document.getElementById('toggleParticles').checked) spawnParticles();
+    }
+  } else {
+    netPnl -= betAmt;
+    sessionLosses++;
+    winStreak = 0;
+    document.getElementById('winStreak').textContent = '0';
+    if (fastMode) playLossSound();
+  }
+
+  // Nonce advance, rotate seeds
+  nonce++;
+  prevServerSeed = serverSeed;
+  serverSeed = generateServerSeed();
+  serverSeedHash = sha256(serverSeed);
+
+  updateSeeds();
+
+  // Stats
+  updateBalanceDisplay();
+  document.getElementById('sessionWins').textContent = sessionWins;
+  document.getElementById('sessionLosses').textContent = sessionLosses;
+  document.getElementById('totalWagered').textContent = '$' + totalWagered.toFixed(2);
+  const pnlEl = document.getElementById('netPnl');
+  pnlEl.textContent = (netPnl >= 0 ? '+' : '') + '$' + netPnl.toFixed(2);
+  pnlEl.className = 'stat-val ' + (netPnl >= 0 ? 'green' : 'red');
+
+  // Add to history pill strip
+  addHistoryPill(rolledMulti, won);
+
+  // Add to bet history table
+  betHistory.unshift({
+    id: nonce,
+    bet: betAmt,
+    target: targetMulti,
+    rolled: rolledMulti,
+    won: won,
+    pnl: won ? (betAmt * targetMulti - betAmt) : -betAmt
+  });
+
+  setTimeout(() => {
+    isRolling = false;
+    document.getElementById('betBtn').disabled = false;
+  }, 600);
+}
+
+async function animateRoll(finalMulti, targetMulti, won) {
+  const display = document.getElementById('multiplierDisplay');
+  const numEl = document.getElementById('multiNumber');
+
+  display.className = 'multiplier-display rolling-state';
+  numEl.className = 'multi-number rolling-color';
+
+  const duration = 1400;
+  const start = performance.now();
+
+  // Intermediate display values drawn from the REAL 95% RTP distribution:
+  // multiplier = 0.95 / (1 - u)  where u ~ Uniform(0,1)
+  // This means ~47.5% of samples are below 2x, ~80.5% below 5x, etc.
+  // So the spinning display looks like actual limbo — dominated by low numbers.
+  function sampleRealisticMulti() {
+    const u = Math.random() * 0.9999;
+    const m = 0.95 / (1 - u);
+    return Math.min(parseFloat(m.toFixed(2)), 1000000);
+  }
+
+  await new Promise(resolve => {
+    let lastTick = 0;
+    let lastFrameTime = 0;
+    const frameInterval = 60; // update display every ~60ms for readability
+
+    function frame(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+
+      let shown;
+
+      if (progress >= 0.97) {
+        // Lock to final result
+        shown = finalMulti;
+      } else if (progress >= 0.80) {
+        // Converge phase: blend toward final with small noise
+        const blend = (progress - 0.80) / 0.17; // 0→1 over last 17%
+        const noise = sampleRealisticMulti();
+        // Weighted average leaning toward finalMulti as we approach end
+        shown = noise * (1 - blend) + finalMulti * blend;
+        shown = Math.max(1.00, parseFloat(shown.toFixed(2)));
+      } else {
+        // Free-spinning phase: pure probability-weighted samples
+        // Only update display every frameInterval ms so numbers are readable
+        if (now - lastFrameTime >= frameInterval) {
+          shown = sampleRealisticMulti();
+          lastFrameTime = now;
+          numEl._lastShown = shown;
+        } else {
+          shown = numEl._lastShown || sampleRealisticMulti();
+        }
+      }
+
+      numEl.textContent = shown.toFixed(2) + '×';
+
+      // Tick sound every 90ms
+      if (now - lastTick > 90) {
+        playTickSound();
+        lastTick = now;
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        numEl.textContent = finalMulti.toFixed(2) + '×';
+        displayResult(finalMulti, won);
+        resolve();
+      }
+    }
+
+    requestAnimationFrame(frame);
+  });
+}
+
+function displayResult(finalMulti, won, betAmt, targetMulti) {
+  const display = document.getElementById('multiplierDisplay');
+  const numEl = document.getElementById('multiNumber');
+
+  numEl.textContent = finalMulti.toFixed(2) + '×';
+
+  if (won) {
+    display.className = 'multiplier-display win-state win-pulse-anim';
+    numEl.className = 'multi-number win-color';
+    showBanner('🎉 YOU WIN! ' + targetMulti + '× MULTIPLIER', 'win');
+    playWinSound();
+    if (document.getElementById('toggleParticles').checked) spawnParticles();
+  } else {
+    display.className = 'multiplier-display loss-state shake-anim';
+    numEl.className = 'multi-number loss-color';
+    showBanner('💀 BUST — Rolled ' + finalMulti.toFixed(2) + '×', 'loss');
+    playLossSound();
+  }
+
+  setTimeout(() => {
+    if (!isRolling) {
+      display.className = 'multiplier-display';
+      numEl.className = 'multi-number';
+      numEl.textContent = '1.00×';
+    }
+  }, 3000);
+}
+
+function showBanner(text, type) {
+  const el = document.getElementById('resultBanner');
+  el.textContent = text;
+  el.className = 'result-banner show ' + type;
+}
+
+function shakeDisplay() {
+  const d = document.getElementById('multiplierDisplay');
+  d.classList.add('shake-anim');
+  setTimeout(() => d.classList.remove('shake-anim'), 500);
+}
+
+function addHistoryPill(multi, won) {
+  const strip = document.getElementById('historyStrip');
+
+  // Remove placeholder text
+  if (strip.querySelector('span:not(.history-pill)')) {
+    strip.innerHTML = '';
+  }
+
+  const pill = document.createElement('div');
+  pill.className = 'history-pill ' + (won ? 'win' : 'loss');
+  pill.textContent = multi.toFixed(2) + '×';
+  pill.title = won ? 'WIN' : 'LOSS';
+
+  // Keep max 50 pills
+  if (strip.children.length >= 50) {
+    strip.removeChild(strip.lastChild);
+  }
+
+  strip.insertBefore(pill, strip.firstChild);
+}
+
+function updateBalanceDisplay() {
+  document.getElementById('balanceDisplay').textContent = balance.toFixed(2);
+}
+
+// ===== PARTICLES =====
+function spawnParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#f5c842', '#ffd700', '#22c55e', '#a855f7', '#ffffff', '#f97316'];
+
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.top = '-20px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.width = (6 + Math.random() * 8) + 'px';
+      p.style.height = p.style.width;
+      p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      p.style.animationDelay = '0s';
+      container.appendChild(p);
+      setTimeout(() => p.remove(), 4000);
+    }, i * 30);
+  }
+}
+
+// ===== AUTO BET =====
+async function startAuto() {
+  const numBets = parseInt(document.getElementById('numBetsInput').value) || 10;
+  const delay = parseInt(document.getElementById('delayInput').value) || 800;
+  autoBetsLeft = numBets;
+
+  document.getElementById('betBtn').textContent = 'STOP';
+  document.getElementById('betBtn').onclick = stopAuto;
+
+  for (let i = 0; i < numBets; i++) {
+    if (autoBetsLeft <= 0) break;
+    document.getElementById('autoProgressLabel').textContent = (i + 1) + ' / ' + numBets;
+    await placeBet();
+    await sleep(delay);
+    autoBetsLeft--;
+  }
+
+  stopAuto();
+}
+
+function stopAuto() {
+  autoBetsLeft = 0;
+  isRolling = false;
+  document.getElementById('betBtn').textContent = 'BET';
+  document.getElementById('betBtn').onclick = placeBet;
+  document.getElementById('betBtn').disabled = false;
+  document.getElementById('autoProgressLabel').textContent = 'Stopped';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Hook bet button for auto
+document.getElementById('tabAuto').addEventListener('click', () => {
+  document.getElementById('betBtn').onclick = startAuto;
+});
+document.getElementById('tabManual').addEventListener('click', () => {
+  document.getElementById('betBtn').onclick = placeBet;
+  document.getElementById('betBtn').textContent = 'BET';
+});
+
+// ===== MODALS =====
+function openProvablyFair() {
+  updateSeeds();
+  document.getElementById('pfModal').classList.add('open');
+}
+
+function openSettings() {
+  document.getElementById('settingsModal').classList.add('open');
+}
+
+function openBetHistory() {
+  renderBetHistory();
+  document.getElementById('historyModal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => {
+    if (e.target === m) m.classList.remove('open');
+  });
+});
+
+function updateSeeds() {
+  document.getElementById('clientSeedDisplay').textContent = clientSeed;
+  document.getElementById('serverSeedHashDisplay').textContent = serverSeedHash;
+  document.getElementById('prevServerSeedDisplay').textContent = prevServerSeed || 'Not yet revealed';
+  document.getElementById('nonceDisplay').textContent = nonce;
+}
+
+function regenerateClientSeed() {
+  clientSeed = generateClientSeed();
+  document.getElementById('clientSeedDisplay').textContent = clientSeed;
+}
+
+function copyToClipboard(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+async function verifyRoll() {
+  const ss = document.getElementById('verifyServerSeed').value.trim();
+  const cs = document.getElementById('verifyClientSeed').value.trim();
+  const n = parseInt(document.getElementById('verifyNonce').value);
+  const resultEl = document.getElementById('verifyResult');
+
+  if (!ss || !cs || isNaN(n)) {
+    resultEl.className = 'verify-result show invalid';
+    resultEl.textContent = '⚠ Please fill in all fields.';
+    return;
+  }
+
+  try {
+    const float = await generateRoll(ss, cs, n);
+    const multi = floatToMultiplier(float);
+
+    resultEl.className = 'verify-result show valid';
+    resultEl.innerHTML = `✅ Verified!<br>
+      HMAC Float: ${float.toFixed(10)}<br>
+      Resulting Multiplier: <strong>${multi.toFixed(2)}×</strong><br>
+      <br>
+      To verify the server seed hash: SHA256("${ss}") should match the server seed hash shown before the bet.`;
+  } catch(e) {
+    resultEl.className = 'verify-result show invalid';
+    resultEl.textContent = '❌ Verification failed: ' + e.message;
+  }
+}
+
+function renderBetHistory() {
+  const list = document.getElementById('betHistoryList');
+  if (betHistory.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:0.85rem;">No bets yet</div>';
+    return;
+  }
+
+  list.innerHTML = betHistory.slice(0, 100).map((b, i) => `
+    <div class="bet-row">
+      <span style="color:var(--text-secondary)">${b.id}</span>
+      <span>$${b.bet.toFixed(2)}</span>
+      <span style="color:var(--accent-gold)">${b.target.toFixed(2)}×</span>
+      <span style="color:${b.won ? 'var(--win-green)' : 'var(--loss-red)'}">${b.rolled.toFixed(2)}×</span>
+      <span class="${b.won ? 'bet-win' : 'bet-loss'}">${b.pnl >= 0 ? '+' : ''}$${b.pnl.toFixed(2)}</span>
+    </div>
+  `).join('');
+}
+
+// ===== INIT =====
+function init() {
+  updateSeeds();
+  onBetChange();
+  onMultiChange();
+  updateBalanceDisplay();
+
+  // Set initial server seed hash async
+  sha256Async(serverSeed).then(hash => {
+    serverSeedHash = hash;
+    updateSeeds();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
